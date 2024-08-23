@@ -17,7 +17,6 @@ interface CodeMap {
   [character: string]: string;
 }
 
-// Construcción del árbol de Huffman
 const buildHuffmanTree = (frequencies: { [char: string]: number }): HuffmanNode => {
   const nodes: HuffmanNode[] = Object.entries(frequencies).map(([char, freq]) => ({
     character: char,
@@ -39,7 +38,6 @@ const buildHuffmanTree = (frequencies: { [char: string]: number }): HuffmanNode 
   return nodes[0];
 };
 
-// Construcción del mapa de códigos Huffman
 const buildHuffmanCodeMap = (root: HuffmanNode, prefix = '', codeMap: CodeMap = {}): CodeMap => {
   if (root.character !== undefined) {
     codeMap[root.character] = prefix;
@@ -49,40 +47,40 @@ const buildHuffmanCodeMap = (root: HuffmanNode, prefix = '', codeMap: CodeMap = 
   return codeMap;
 };
 
-// Codificación del mapa de códigos Huffman
 const encodeCodeMap = (codeMap: CodeMap): string => {
-  return Object.entries(codeMap)
-    .map(([char, code]) => {
-      const charBinary = char.charCodeAt(0).toString(2).padStart(8, '0');
-      const codeLength = code.length.toString(2).padStart(8, '0');
-      return `${charBinary}${codeLength}${code}`;
-    })
-    .join('');
+  const codeEntries = Object.entries(codeMap).map(([char, code]) => {
+    const charBinary = char.charCodeAt(0).toString(2).padStart(8, '0');
+    const codeLength = code.length.toString(2).padStart(8, '0');
+    return `${charBinary}${codeLength}${code}`;
+  });
+
+  const totalLengthBinary = (codeEntries.join('').length).toString(2).padStart(16, '0');
+  
+  return totalLengthBinary + codeEntries.join('');
 };
 
-// Decodificación del mapa de códigos Huffman
-const decodeCodeMap = (codeMapBinary: string): CodeMap => {
+const decodeCodeMap = (encodedMap: string): CodeMap => {
   const codeMap: CodeMap = {};
-  let index = 0;
+  let index = 16; // Skip the length part
+  const totalLength = parseInt(encodedMap.slice(0, 16), 2);
 
-  while (index < codeMapBinary.length) {
-    const charBinary = codeMapBinary.slice(index, index + 8);
+  while (index < totalLength) {
+    const charBinary = encodedMap.slice(index, index + 8);
     index += 8;
     const char = String.fromCharCode(parseInt(charBinary, 2));
 
-    const lengthBinary = codeMapBinary.slice(index, index + 8);
+    const lengthBinary = encodedMap.slice(index, index + 8);
     index += 8;
     const length = parseInt(lengthBinary, 2);
 
-    const code = codeMapBinary.slice(index, index + length);
+    const code = encodedMap.slice(index, index + length);
     index += length;
 
-    codeMap[char] = code;
+    codeMap[code] = char;
   }
   return codeMap;
 };
 
-// Función para comprimir el texto usando Huffman
 const compressHuffman = (input: string): string => {
   const frequencies = input.split('').reduce((acc, char) => {
     acc[char] = (acc[char] || 0) + 1;
@@ -93,16 +91,21 @@ const compressHuffman = (input: string): string => {
   const codeMap = buildHuffmanCodeMap(root);
   const encodedMap = encodeCodeMap(codeMap);
   const encodedInput = input.split('').map(char => codeMap[char]).join('');
-  return encodedMap + '00000000' + encodedInput;
+  return encodedMap + encodedInput;
 };
 
-// Función para descomprimir el texto usando Huffman
-const decompressHuffman = (encoded: string, codeMap: CodeMap): string => {
+const decompressHuffman = (encoded: string): string => {
+  const mapEndIndex = 16 + parseInt(encoded.slice(0, 16), 2);
+  const encodedMap = encoded.slice(16, mapEndIndex);
+  const binaryData = encoded.slice(mapEndIndex);
+
+  const codeMap = decodeCodeMap(encodedMap);
   const reversedCodeMap = Object.fromEntries(Object.entries(codeMap).map(([k, v]) => [v, k]));
+
   let currentCode = '';
   let decoded = '';
 
-  for (const bit of encoded) {
+  for (const bit of binaryData) {
     currentCode += bit;
     if (reversedCodeMap[currentCode]) {
       decoded += reversedCodeMap[currentCode];
@@ -112,10 +115,8 @@ const decompressHuffman = (encoded: string, codeMap: CodeMap): string => {
   return decoded;
 };
 
-// Componente React para manejar la compresión y descompresión
 const HuffmanCompression: React.FC = () => {
-  const [input, setInput] = useState<string>(`da705\n00111100\n01111110\n11011011\n11111111\n11011011\n01100110\n00111100
-`);
+  const [input, setInput] = useState<string>(`da705\n00111100\n01111110\n11011011\n11111111\n11011011\n01100110\n00111100`);
   const [output, setOutput] = useState<string>("");
   const [mode, setMode] = useState<"compress" | "decompress">("compress");
   const [codeMap, setCodeMap] = useState<CodeMap>({});
@@ -124,13 +125,13 @@ const HuffmanCompression: React.FC = () => {
   const handleProcess = () => {
     if (mode === "compress") {
       const compressed = compressHuffman(input);
-      const mapEndIndex = compressed.indexOf('00000000');
+      const mapEndIndex = 16 + parseInt(compressed.slice(0, 16), 2);
       const encodedMap = compressed.slice(0, mapEndIndex);
-      const binaryData = compressed.slice(mapEndIndex + 8);
+      const binaryData = compressed.slice(mapEndIndex);
       setCodeMap(decodeCodeMap(encodedMap));
       setOutput(binaryData);
     } else {
-      const decompressed = decompressHuffman(input, codeMap);
+      const decompressed = decompressHuffman(input);
       setOutput(decompressed);
     }
   };
@@ -141,8 +142,8 @@ const HuffmanCompression: React.FC = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const rows = matrix.split("\n");
-    const cellSize = 20;
-    const fontSize = 12;
+    const cellSize = 30;
+    const fontSize = 16;
     const maxWidth = Math.max(...rows.map(row => row.length)) * cellSize;
     canvas.width = maxWidth;
     canvas.height = rows.length * cellSize;
@@ -161,7 +162,7 @@ const HuffmanCompression: React.FC = () => {
       } else {
         ctx.fillStyle = "black";
         ctx.font = `${fontSize}px Arial`;
-        ctx.fillText(row, 0, (y + 1) * cellSize - (cellSize - fontSize) / 2);
+        ctx.fillText(row.toUpperCase(), 0, (y + 1) * cellSize - (cellSize - fontSize) / 2);
       }
     });
   };
@@ -214,39 +215,18 @@ const HuffmanCompression: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-
+      <div className="relative">
+        <canvas ref={canvasRef} className="border border-gray-300" />
+      </div>
       <Card>
         <CardHeader>
-          <CardTitle>{mode === "compress" ? "Datos Comprimidos (Binario)" : "Matriz Descomprimida"}</CardTitle>
+          <CardTitle>Resultado</CardTitle>
         </CardHeader>
         <CardContent>
-          <pre className="bg-secondary p-2 rounded overflow-x-auto">{output}</pre>
-          <p>Bytes de entrada: {input.length}</p>
-          <p>Bytes de salida: {output.length}</p>
+          <p>{output}</p>
+          <p>Longitud: {output.length}</p>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Visualización de la Matriz</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <canvas ref={canvasRef} className="border border-gray-300" />
-        </CardContent>
-      </Card>
-
-      {mode === "compress" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Mapa de Códigos Huffman</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <pre className="bg-secondary p-2 rounded overflow-x-auto">
-              {JSON.stringify(codeMap, null, 2)}
-            </pre>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
