@@ -10,7 +10,7 @@ import { useHuffmanCompressionWrapper } from "@/hooks/useHuffmanCompressionWrapp
 const HuffmanCompression: React.FC = () => {
   const [input, setInput] = useState<string>("da705\n00111100\n01111110\n11011011\n11111111\n11011011\n01100110\n00111100");
   const [mode, setMode] = useState<"compress" | "decompress">("compress");
-  const { codeBook, output, setInternalInput, setInternalMode } = useHuffmanCompressionWrapper(input, mode);
+  const { codeBook, output, setInternalInput, setInternalMode, codeBookRGB, outputRGB } = useHuffmanCompressionWrapper(input, mode);
 
   const handleButtonClick = () => {
     setInternalInput(input);
@@ -32,8 +32,12 @@ const HuffmanCompression: React.FC = () => {
         </TabsContent>
         <p><strong>Longitud:</strong> {input.length}</p>
       </Tabs>
+      <strong>Compresion Binaria</strong>
       <MatrixCanvas matrix={mode === "compress" ? input : output} />
       <CompressionResult codeBook={codeBook} output={output} />
+      <strong>Compresion RGB</strong>
+      <MatrixCanvas matrix={mode === "compress" ? input : outputRGB} />
+      <CompressionResult codeBook={codeBookRGB} output={outputRGB} />
     </div>
   );
 };
