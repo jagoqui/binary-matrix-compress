@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -56,28 +56,29 @@ const encodeCodeMap = (codeMap: CodeMap): string => {
   });
 
   const totalLengthBinary = (codeEntries.join('').length).toString(2).padStart(16, '0');
-  
+
   return totalLengthBinary + codeEntries.join('');
 };
 
 const decodeCodeMap = (encodedMap: string): CodeMap => {
   const codeMap: CodeMap = {};
-  let index = 16; // Skip the length part
+  let index = 0;
   const totalLength = parseInt(encodedMap.slice(0, 16), 2);
+  index += 16;
 
   while (index < totalLength + 16) {
     const charBinary = encodedMap.slice(index, index + 8);
-    index += 8;
     const char = String.fromCharCode(parseInt(charBinary, 2));
+    index += 8;
 
     const lengthBinary = encodedMap.slice(index, index + 8);
-    index += 8;
     const length = parseInt(lengthBinary, 2);
+    index += 8;
 
     const code = encodedMap.slice(index, index + length);
     index += length;
 
-    codeMap[code] = char;
+    codeMap[char] = code;
   }
   return codeMap;
 };
@@ -97,7 +98,7 @@ const compressHuffman = (input: string): { encodedData: string, codeMap: CodeMap
 
 const decompressHuffman = (encoded: string): { decodedData: string, codeMap: CodeMap } => {
   const mapEndIndex = 16 + parseInt(encoded.slice(0, 16), 2);
-  const encodedMap = encoded.slice(16, mapEndIndex);
+  const encodedMap = encoded.slice(0, mapEndIndex);
   const binaryData = encoded.slice(mapEndIndex);
 
   const codeMap = decodeCodeMap(encodedMap);
@@ -117,7 +118,7 @@ const decompressHuffman = (encoded: string): { decodedData: string, codeMap: Cod
 };
 
 const HuffmanCompression: React.FC = () => {
-  const [input, setInput] = useState<string>(`da705\n00111100\n01111110\n11011011\n11111111\n11011011\n01100110\n00111100`);
+  const [input, setInput] = useState<string>("da705\n00111100\n01111110\n11011011\n11111111\n11011011\n01100110\n00111100");
   const [output, setOutput] = useState<string>("");
   const [codeBook, setCodeBook] = useState<CodeMap>({});
   const [mode, setMode] = useState<"compress" | "decompress">("compress");
@@ -140,9 +141,11 @@ const HuffmanCompression: React.FC = () => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
     const rows = matrix.split("\n");
     const cellSize = 30;
     const fontSize = 16;
+
     const maxWidth = Math.max(...rows.map(row => row.length)) * cellSize;
     canvas.width = maxWidth;
     canvas.height = rows.length * cellSize;
@@ -189,6 +192,7 @@ const HuffmanCompression: React.FC = () => {
                 placeholder="Ingrese la matriz aquí"
                 rows={10}
               />
+              <p><strong>Longitud:</strong> {input.length}</p>
               <Button onClick={handleProcess} className="mt-2">
                 Comprimir
               </Button>
@@ -223,7 +227,7 @@ const HuffmanCompression: React.FC = () => {
         </CardHeader>
         <CardContent>
           <pre><strong>CodeBook:</strong> {JSON.stringify(codeBook, null, 2)}</pre>
-          <p><strong>Resultado:</strong> {output}</p>
+          <pre><strong>Resultado:</strong> <br></br>{output}</pre>
           <p><strong>Longitud:</strong> {output.length}</p>
         </CardContent>
       </Card>
