@@ -192,7 +192,6 @@ const HuffmanCompression: React.FC = () => {
                 placeholder="Ingrese la matriz aquí"
                 rows={10}
               />
-              <p><strong>Longitud:</strong> {input.length}</p>
               <Button onClick={handleProcess} className="mt-2">
                 Comprimir
               </Button>
@@ -217,6 +216,7 @@ const HuffmanCompression: React.FC = () => {
             </CardContent>
           </Card>
         </TabsContent>
+        <p><strong>Longitud:</strong> {input.length}</p>
       </Tabs>
       <div className="relative">
         <canvas ref={canvasRef} className="border border-gray-300" />
