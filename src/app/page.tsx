@@ -13,7 +13,6 @@ const HuffmanCompression: React.FC = () => {
   const { codeBook, output, setInternalInput, setInternalMode } = useHuffmanCompressionWrapper(input, mode);
 
   const handleButtonClick = () => {
-    // Add your compression/decompression logic here
     setInternalInput(input);
     setInternalMode(mode);
   };
