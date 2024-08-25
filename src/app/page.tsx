@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MatrixEditor from "@/components/MatrixEditor";
 import MatrixCanvas from "@/components/MatrixCanvas";
@@ -8,9 +8,25 @@ import CompressionResult from "@/components/CompressionResult";
 import { useHuffmanCompressionWrapper } from "@/hooks/useHuffmanCompressionWrapper";
 
 const HuffmanCompression: React.FC = () => {
-  const [input, setInput] = useState<string>("da705\n00111100\n01111110\n11011011\n11111111\n11011011\n01100110\n00111100");
+  // Define the default input values for each mode
+  const defaultCompressInput = "DA705\n00111100\n01111110\n11011011\n11111111\n11011011\n01100110\n00111100";
+  const defaultDecompressInput = ""; // Default value for decompression if needed
+
+  // State for input and mode
+  const [input, setInput] = useState<string>(defaultCompressInput);
   const [mode, setMode] = useState<"compress" | "decompress">("compress");
-  const { codeBook, output, setInternalInput, setInternalMode, codeBookRGB, outputRGB } = useHuffmanCompressionWrapper(input, mode);
+  const { setInternalInput, setInternalMode, codeBookRGB, outputRGB } = useHuffmanCompressionWrapper(input, mode);
+
+  // Load the input from localStorage based on the current mode
+  useEffect(() => {
+    const storedInput = localStorage.getItem(`matrixInput_${mode}`);
+    setInput(storedInput !== null ? storedInput : (mode === "compress" ? defaultCompressInput : defaultDecompressInput));
+  }, [mode]);
+
+  // Save the input to localStorage whenever it changes and on mode change
+  useEffect(() => {
+    localStorage.setItem(`matrixInput_${mode}`, input);
+  }, [input, mode]);
 
   const handleButtonClick = () => {
     setInternalInput(input);
@@ -32,10 +48,7 @@ const HuffmanCompression: React.FC = () => {
         </TabsContent>
         <p><strong>Longitud:</strong> {input.length}</p>
       </Tabs>
-      <strong>Compresion Binaria</strong>
-      <MatrixCanvas matrix={mode === "compress" ? input : output} />
-      <CompressionResult codeBook={codeBook} output={output} />
-      <strong>Compresion RGB</strong>
+      <strong>{mode === "compress" ? 'Compresión' : 'Descompresión'} RGB</strong>
       <MatrixCanvas matrix={mode === "compress" ? input : outputRGB} />
       <CompressionResult codeBook={codeBookRGB} output={outputRGB} />
     </div>
@@ -43,4 +56,3 @@ const HuffmanCompression: React.FC = () => {
 };
 
 export default HuffmanCompression;
-

@@ -27,15 +27,24 @@ const MatrixCanvas: React.FC<MatrixCanvasProps> = ({ matrix }) => {
     rows.forEach((row, y) => {
       if (/^[01]+$/.test(row)) {
         [...row].forEach((cell, x) => {
+          // Draw cell background
           if (cell === "1") {
             ctx.fillStyle = "black";
             ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          } else {
+            ctx.fillStyle = "white";
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
           }
+          // Draw cell border
+          ctx.strokeStyle = "gray";
+          ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
         });
       } else {
         ctx.fillStyle = "black";
         ctx.font = `${fontSize}px Arial`;
-        ctx.fillText(row.toUpperCase(), 0, (y + 1) * cellSize - (cellSize - fontSize) / 2);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(row.toUpperCase(), (row.length * cellSize) / 2, (y + 1) * cellSize - (cellSize - fontSize) / 2);
       }
     });
   };
