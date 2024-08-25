@@ -2,23 +2,24 @@ import { useEffect, useState } from "react";
 
 // Definición del codeBook fijo
 const codeBook: { [key: string]: string } = {
-  "0": "B",
-  "1": "A",
-  "2": "AB",
-  "3": "V",
-  "4": "VB",
-  "5": "VA",
-  "6": "VAB",
-  "7": "R",
-  "8": "RB",
-  "9": "RA",
-  "A": "RAB",
-  "B": "RV",
-  "C": "RVB",
-  "D": "RVA",
-  "E": "RVAB",
-  "F": "X",
-  "\n": "Z"
+  "0": "⚪",
+  "1": "🔵",
+  "2": "🔵⚪",
+  "3": "🟢",
+  "4": "🟢⚪",
+  "5": "🟢🔵",
+  "6": "🟢🔵⚪",
+  "7": "🔴",
+  "8": "🔴⚪",
+  "9": "🔴🔵",
+  "A": "🔴🔵⚪",
+  "B": "🔴🟢",
+  "C": "🔴🟢⚪",
+  "D": "🔴🟢🔵",
+  "E": "🔴🟢🔵⚪",
+  "F": "🚨", //Parpadeo rojo
+  "\n": "🚦" ,//Parpadeo verde,
+  ".": "💡" // Separador de caracteres hexadecimales
 };
 
 interface CodeMap {

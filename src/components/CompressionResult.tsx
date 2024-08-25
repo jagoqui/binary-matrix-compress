@@ -23,7 +23,7 @@ const CompressionResult: React.FC<CompressionResultProps> = ({ codeBook, output 
       <CardContent>
         <div>
           <strong>Codificación:</strong>
-          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxWidth: '100%', overflowX: 'auto' }}>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxWidth: '100%', overflowX: 'auto', fontSize: '32px' }}>
             {output}
           </pre>
           <strong>Longitud: {output.length}</strong>
