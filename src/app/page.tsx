@@ -15,23 +15,13 @@ const HuffmanCompression: React.FC = () => {
   // State for input and mode
   const [input, setInput] = useState<string>(defaultCompressInput);
   const [mode, setMode] = useState<"compress" | "decompress">("compress");
-  const { setInternalInput, setInternalMode, codeBookRGB, outputRGB } = useHuffmanCompressionWrapper(input, mode);
+  const {codeBookRGB, outputRGB } = useHuffmanCompressionWrapper(input, mode);
 
   // Load the input from localStorage based on the current mode
   useEffect(() => {
     const storedInput = localStorage.getItem(`matrixInput_${mode}`);
     setInput(storedInput !== null ? storedInput : (mode === "compress" ? defaultCompressInput : defaultDecompressInput));
   }, [mode]);
-
-  // Save the input to localStorage whenever it changes and on mode change
-  useEffect(() => {
-    localStorage.setItem(`matrixInput_${mode}`, input);
-  }, [input, mode]);
-
-  const handleButtonClick = () => {
-    setInternalInput(input);
-    setInternalMode(mode);
-  };
 
   return (
     <div className="flex flex-col space-y-4 p-4">
@@ -41,10 +31,10 @@ const HuffmanCompression: React.FC = () => {
           <TabsTrigger value="decompress">Descomprimir</TabsTrigger>
         </TabsList>
         <TabsContent value="compress">
-          <MatrixEditor input={input} setInput={setInput} mode="compress" onButtonClick={handleButtonClick} />
+          <MatrixEditor input={input} setInput={setInput} mode="compress" />
         </TabsContent>
         <TabsContent value="decompress">
-          <MatrixEditor input={input} setInput={setInput} mode="decompress" onButtonClick={handleButtonClick} />
+          <MatrixEditor input={input} setInput={setInput} mode="decompress"/>
         </TabsContent>
         <p><strong>Longitud:</strong> {input.length}</p>
       </Tabs>

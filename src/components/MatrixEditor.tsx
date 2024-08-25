@@ -29,6 +29,7 @@ const MatrixEditor: React.FC<MatrixEditorProps> = ({ input, setInput, mode }) =>
     // Update the local state and input
     setLocalInput(filteredValue);
     setInput(filteredValue);
+    localStorage.setItem(`matrixInput_${mode}`, newValue);
   };
 
   // Function to handle input reset

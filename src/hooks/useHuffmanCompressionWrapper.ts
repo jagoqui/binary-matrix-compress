@@ -14,5 +14,5 @@ export const useHuffmanCompressionWrapper = (input: string, mode: "compress" | "
     setInternalMode(mode);
   }, [mode]);
 
-  return {setInternalInput, setInternalMode, codeBookRGB, outputRGB };
+  return {codeBookRGB, outputRGB };
 };
