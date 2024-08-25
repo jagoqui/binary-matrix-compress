@@ -38,7 +38,7 @@ const MatrixEditor: React.FC<MatrixEditorProps> = ({ input, setInput, mode }) =>
     if (window.confirm("¿Estás seguro de que deseas resetear el input?")) {
       setLocalInput("");
       setInput("");
-      localStorage.removeItem("matrixInput"); // Clear input from local storage
+      localStorage.removeItem(`matrixInput_${mode}`); // Clear input from local storage
     }
   };
 
